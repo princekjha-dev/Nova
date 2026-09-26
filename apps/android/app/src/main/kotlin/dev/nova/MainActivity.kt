@@ -39,9 +39,9 @@ enum class NovaScreen(val title: String, val icon: ImageVector) {
     Home("Home", Icons.Default.Home),
     Devices("Devices", Icons.Default.Devices),
     Clipboard("Clipboard", Icons.Default.ContentPaste),
-    Notes("Notes", Icons.Default.Notes),
+    Notes("Notes", Icons.Default.Description),
     Files("Files", Icons.Default.Folder),
-    Tasks("Tasks", Icons.Default.Task),
+    Tasks("Tasks", Icons.Default.Checklist),
     AI("AI", Icons.Default.AutoAwesome),
     Settings("Settings", Icons.Default.Settings)
 }

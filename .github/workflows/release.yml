@@ -140,9 +140,6 @@ jobs:
             ### 🔐 Checksums & Verification
             Verify the SHA-256 integrity of your downloaded assets against `SHA256SUMS.txt`.
           files: |
-            release-assets/nova-android.apk
-            release-assets/nova-daemon-linux-x86_64
-            release-assets/nova-desktop-web-ui.tar.gz
-            release-assets/SHA256SUMS.txt
+            release-assets/*
           draft: false
           prerelease: false
