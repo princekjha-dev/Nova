@@ -41,7 +41,7 @@ jobs:
         working-directory: apps/android
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug --stacktrace --no-daemon
+          ./gradlew assembleDebug --no-daemon --warning-mode all
           mkdir -p ../../release-artifacts
           cp app/build/outputs/apk/debug/*.apk ../../release-artifacts/nova-android.apk
 
