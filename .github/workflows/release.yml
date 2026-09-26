@@ -34,13 +34,16 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
 
       - name: Build Android APK
         working-directory: apps/android
         run: |
-          gradle assembleDebug --stacktrace
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --stacktrace --no-daemon
           mkdir -p ../../release-artifacts
-          cp app/build/outputs/apk/debug/app-debug.apk ../../release-artifacts/nova-android.apk
+          cp app/build/outputs/apk/debug/*.apk ../../release-artifacts/nova-android.apk
 
       - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4
@@ -97,6 +100,7 @@ jobs:
   publish-release:
     name: Publish GitHub Release with APK & Linux Binaries
     needs: [build-android, build-linux]
+    if: always() && needs.build-linux.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -104,6 +108,7 @@ jobs:
 
       - name: Download Android APK
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: nova-android-apk
           path: release-assets
