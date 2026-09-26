@@ -129,6 +129,7 @@ async fn main() -> Result<()> {
         .route("/api/devices", get(list_devices))
         .route("/api/devices/revoke", post(revoke_device))
         .route("/api/pair/invitation", post(create_pairing_qr))
+        .route("/api/pair/download-qr", get(get_download_qr))
         .route("/api/pair/confirm", post(confirm_pairing))
         .route("/api/clipboard", get(get_clipboard).post(copy_clipboard))
         .route("/api/notes", get(list_notes).post(create_note))
@@ -199,6 +200,18 @@ async fn create_pairing_qr(State(state): State<AppState>) -> Json<serde_json::Va
         "svg": svg
     }))
 }
+
+async fn get_download_qr() -> Json<serde_json::Value> {
+    let url = "https://github.com/princekjha-dev/Nova/releases/latest/download/nova-android.apk";
+    let svg = nova_discovery::generate_url_qr_svg(url).unwrap_or_default();
+    Json(json!({
+        "url": url,
+        "svg": svg,
+        "releases_page": "https://github.com/princekjha-dev/Nova/releases",
+        "version": "0.1.0"
+    }))
+}
+
 
 #[derive(Deserialize)]
 struct ConfirmPairingReq {

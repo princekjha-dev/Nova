@@ -2,8 +2,28 @@
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/Rust-1.98+-orange.svg)](Cargo.toml)
+[![GitHub Release](https://img.shields.io/github/v/release/princekjha-dev/Nova?include_prereleases&label=Latest%20Release&color=indigo)](https://github.com/princekjha-dev/Nova/releases)
 
 > **Nova** is a production-grade, local-first, peer-to-peer continuity platform connecting Linux desktops and Android mobile devices with cryptographic zero-trust security and modern developer aesthetics.
+
+---
+
+## 📥 Downloads & Releases
+
+| Platform | Package | Download Link | Requirements |
+|---|---|---|---|
+| **Android** | `nova-android.apk` | **[📱 Download APK (Latest Release)](https://github.com/princekjha-dev/Nova/releases/latest/download/nova-android.apk)** | Android 8.0+ (Oreo, API 26+) |
+| **Linux (Daemon)** | `nova-daemon-linux-x86_64` | **[💻 Download Daemon](https://github.com/princekjha-dev/Nova/releases/latest/download/nova-daemon-linux-x86_64)** | Linux x86_64, glibc 2.31+ |
+| **Linux (Desktop UI)**| `nova-desktop-web-ui.tar.gz` | **[🖥️ Download Desktop UI](https://github.com/princekjha-dev/Nova/releases/latest/download/nova-desktop-web-ui.tar.gz)** | Any modern browser / WebKit |
+
+> 💡 **Tip**: When pairing a new phone from the Linux desktop client, you can also scan the on-screen QR code or open the in-app download link to install `nova-android.apk` directly.
+
+### 📱 Installing the Android APK (Sideloading)
+1. Download `nova-android.apk` directly on your phone from **[Latest Release](https://github.com/princekjha-dev/Nova/releases/latest/download/nova-android.apk)** or scan the QR code displayed in the Nova desktop app.
+2. Tap the downloaded APK in your notification drawer or Downloads folder.
+3. If prompted by Android, enable **"Install unknown apps"** for your browser in Settings.
+4. Tap **Install**, open Nova, and grant Nearby Devices / Notification permissions.
+5. Tap **Pair Device** and scan the pairing code on your Linux desktop to connect immediately!
 
 ---
 

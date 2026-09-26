@@ -53,6 +53,19 @@ impl QrPairingPayload {
     }
 }
 
+/// Generates an SVG QR code for an arbitrary URL (e.g. Android APK download link).
+pub fn generate_url_qr_svg(url: &str) -> Result<String> {
+    let code = QrCode::new(url.as_bytes())
+        .map_err(|e| anyhow!("Failed to generate QR code: {}", e))?;
+    let image = code
+        .render::<svg::Color>()
+        .min_dimensions(256, 256)
+        .dark_color(svg::Color("#0f172a"))
+        .light_color(svg::Color("#ffffff"))
+        .build();
+    Ok(image)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -78,6 +91,10 @@ mod tests {
         let svg = payload.generate_svg()?;
         assert!(svg.contains("<svg"));
         assert!(svg.contains("</svg>"));
+
+        let download_svg = generate_url_qr_svg("https://github.com/princekjha-dev/Nova/releases/latest/download/nova-android.apk")?;
+        assert!(download_svg.contains("<svg"));
+        println!("APK_DOWNLOAD_QR_SVG_BEGIN\n{}\nAPK_DOWNLOAD_QR_SVG_END", download_svg);
 
         Ok(())
     }

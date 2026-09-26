@@ -111,6 +111,9 @@ class NovaApp {
   private remotePromptPending: boolean = false;
   private qrModalOpen: boolean = false;
   private pairingPin: string = '842 195';
+  private modalTab: 'pair' | 'download' = 'pair';
+  private downloadQrSvg: string = '';
+  private downloadUrl: string = 'https://github.com/princekjha-dev/Nova/releases/latest/download/nova-android.apk';
 
   constructor() {
     this.init();
@@ -134,6 +137,12 @@ class NovaApp {
           device_id: data.device_id || this.localDevice.device_id,
           port: data.port || 53418
         };
+      }
+      const qrRes = await fetch(`${this.apiBase}/pair/download-qr`, { signal: AbortSignal.timeout(1500) });
+      if (qrRes.ok) {
+        const qrData = await qrRes.json();
+        if (qrData.svg) this.downloadQrSvg = qrData.svg;
+        if (qrData.url) this.downloadUrl = qrData.url;
       }
     } catch {
       this.daemonOnline = false;
@@ -200,48 +209,104 @@ class NovaApp {
           </section>
         </main>
 
-        <!-- QR Pairing Modal -->
+        <!-- QR Pairing & APK Download Modal -->
         <div class="modal-overlay ${this.qrModalOpen ? 'active' : ''}" id="qr-modal">
           <div class="modal-content">
             <div class="modal-header">
-              <div class="modal-title">Pair Android Phone</div>
+              <div class="modal-title">${this.modalTab === 'pair' ? 'Pair Android Phone' : 'Install Nova for Android'}</div>
               <button class="modal-close" id="modal-close-btn">&times;</button>
             </div>
-            <div class="qr-box">
-              <!-- Animated / Clean SVG QR Code -->
-              <svg viewBox="0 0 100 100" fill="#0f172a">
-                <rect width="100" height="100" fill="#ffffff"/>
-                <!-- Top-Left Target -->
-                <rect x="10" y="10" width="24" height="24" fill="#0f172a"/>
-                <rect x="14" y="14" width="16" height="16" fill="#ffffff"/>
-                <rect x="18" y="18" width="8" height="8" fill="#6366f1"/>
-                <!-- Top-Right Target -->
-                <rect x="66" y="10" width="24" height="24" fill="#0f172a"/>
-                <rect x="70" y="14" width="16" height="16" fill="#ffffff"/>
-                <rect x="74" y="18" width="8" height="8" fill="#6366f1"/>
-                <!-- Bottom-Left Target -->
-                <rect x="10" y="66" width="24" height="24" fill="#0f172a"/>
-                <rect x="14" y="70" width="16" height="16" fill="#ffffff"/>
-                <rect x="18" y="74" width="8" height="8" fill="#6366f1"/>
-                <!-- Payload pattern elements -->
-                <rect x="42" y="12" width="6" height="6" fill="#0f172a"/>
-                <rect x="52" y="18" width="6" height="6" fill="#0f172a"/>
-                <rect x="42" y="42" width="16" height="16" fill="#06b6d4"/>
-                <rect x="68" y="42" width="6" height="6" fill="#0f172a"/>
-                <rect x="42" y="68" width="8" height="8" fill="#0f172a"/>
-                <rect x="68" y="68" width="12" height="12" fill="#6366f1"/>
-              </svg>
+
+            <!-- Modal Subtabs for Instant Adoption -->
+            <div class="modal-tabs">
+              <button class="modal-tab-btn ${this.modalTab === 'pair' ? 'active' : ''}" id="tab-btn-pair">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15-5-5 1.41-1.41L11 14.17l7.59-7.59L20 8l-9 9z"/></svg>
+                Scan to Pair
+              </button>
+              <button class="modal-tab-btn ${this.modalTab === 'download' ? 'active' : ''}" id="tab-btn-download">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                Download APK
+              </button>
             </div>
-            <div style="text-align: center; color: var(--text-muted); font-size: 13px;">
-              Scan this code with the <strong>Nova Android App</strong> or enter the one-time confirmation PIN:
-            </div>
-            <div class="pin-display">${this.pairingPin}</div>
-            <div style="font-size: 12px; color: var(--text-dim); text-align: center;">
-              Ed25519 Fingerprint: <span class="code-tag">${this.localDevice.fingerprint}</span>
-            </div>
-            <button class="btn-primary" style="width: 100%; margin-top: 20px; justify-content: center;" id="modal-done-btn">
-              Done
-            </button>
+
+            ${this.modalTab === 'pair' ? `
+              <div class="qr-box">
+                <svg viewBox="0 0 100 100" fill="#0f172a">
+                  <rect width="100" height="100" fill="#ffffff"/>
+                  <rect x="10" y="10" width="24" height="24" fill="#0f172a"/>
+                  <rect x="14" y="14" width="16" height="16" fill="#ffffff"/>
+                  <rect x="18" y="18" width="8" height="8" fill="#6366f1"/>
+                  <rect x="66" y="10" width="24" height="24" fill="#0f172a"/>
+                  <rect x="70" y="14" width="16" height="16" fill="#ffffff"/>
+                  <rect x="74" y="18" width="8" height="8" fill="#6366f1"/>
+                  <rect x="10" y="66" width="24" height="24" fill="#0f172a"/>
+                  <rect x="14" y="70" width="16" height="16" fill="#ffffff"/>
+                  <rect x="18" y="74" width="8" height="8" fill="#6366f1"/>
+                  <rect x="42" y="12" width="6" height="6" fill="#0f172a"/>
+                  <rect x="52" y="18" width="6" height="6" fill="#0f172a"/>
+                  <rect x="42" y="42" width="16" height="16" fill="#06b6d4"/>
+                  <rect x="68" y="42" width="6" height="6" fill="#0f172a"/>
+                  <rect x="42" y="68" width="8" height="8" fill="#0f172a"/>
+                  <rect x="68" y="68" width="12" height="12" fill="#6366f1"/>
+                </svg>
+              </div>
+              <div style="text-align: center; color: var(--text-muted); font-size: 13px;">
+                Scan this code with the <strong>Nova Android App</strong> or enter the confirmation PIN:
+              </div>
+              <div class="pin-display">${this.pairingPin}</div>
+              <div style="font-size: 12px; color: var(--text-dim); text-align: center;">
+                Ed25519 Fingerprint: <span class="code-tag">${this.localDevice.fingerprint}</span>
+              </div>
+              <div style="text-align: center; margin-top: 14px; font-size: 12px; color: var(--text-muted);">
+                Don't have the Nova Android app installed yet?
+                <a href="javascript:void(0)" id="switch-to-download-link" style="color: var(--accent-cyan); font-weight: 600; margin-left: 4px; text-decoration: underline;">Get Android APK &rarr;</a>
+              </div>
+              <button class="btn-primary" style="width: 100%; margin-top: 16px; justify-content: center;" id="modal-done-btn">
+                Done
+              </button>
+            ` : `
+              <div class="qr-box" id="download-qr-container">
+                ${this.downloadQrSvg || `
+                  <svg viewBox="0 0 100 100" fill="#0f172a">
+                    <rect width="100" height="100" fill="#ffffff"/>
+                    <rect x="10" y="10" width="24" height="24" fill="#0f172a"/>
+                    <rect x="14" y="14" width="16" height="16" fill="#ffffff"/>
+                    <rect x="18" y="18" width="8" height="8" fill="#06b6d4"/>
+                    <rect x="66" y="10" width="24" height="24" fill="#0f172a"/>
+                    <rect x="70" y="14" width="16" height="16" fill="#ffffff"/>
+                    <rect x="74" y="18" width="8" height="8" fill="#06b6d4"/>
+                    <rect x="10" y="66" width="24" height="24" fill="#0f172a"/>
+                    <rect x="14" y="70" width="16" height="16" fill="#ffffff"/>
+                    <rect x="18" y="74" width="8" height="8" fill="#06b6d4"/>
+                    <rect x="44" y="24" width="12" height="12" fill="#0f172a"/>
+                    <rect x="36" y="44" width="28" height="28" fill="#6366f1"/>
+                    <path d="M50 48v16m-5-5 5 5 5-5" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                `}
+              </div>
+              <div style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 14px;">
+                Scan with your phone camera to download <strong>nova-android.apk</strong> directly:
+              </div>
+              <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                <a href="${this.downloadUrl}" target="_blank" class="btn-primary" style="flex: 1; justify-content: center; text-decoration: none;">
+                  <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                  Download APK
+                </a>
+                <a href="https://github.com/princekjha-dev/Nova/releases" target="_blank" class="btn-secondary" style="justify-content: center; text-decoration: none;">
+                  GitHub Releases
+                </a>
+              </div>
+              <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 16px;">
+                <div style="font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Easy 4-Step Sideload Guide:</div>
+                <div class="guide-step"><span class="step-number">1</span><span>Scan QR with phone camera or click <em>Download APK</em>.</span></div>
+                <div class="guide-step"><span class="step-number">2</span><span>Open the downloaded <code>nova-android.apk</code> file.</span></div>
+                <div class="guide-step"><span class="step-number">3</span><span>Tap <strong>Install</strong> (allow <em>"Install unknown apps"</em> if prompted).</span></div>
+                <div class="guide-step"><span class="step-number">4</span><span>Open Nova on phone, tap <strong>Pair Device</strong>, and scan the QR below.</span></div>
+              </div>
+              <button class="btn-primary" style="width: 100%; justify-content: center;" id="switch-to-pair-btn">
+                App Installed &rarr; Switch to Pairing QR
+              </button>
+            `}
           </div>
         </div>
 
@@ -329,6 +394,26 @@ class NovaApp {
 
   private renderOverview(): string {
     return `
+      <!-- Mobile Adoption & APK Download Banner -->
+      <div class="adoption-banner">
+        <div class="adoption-banner-content">
+          <div class="adoption-banner-icon">📱</div>
+          <div>
+            <div class="adoption-banner-title">Get Nova on your Android Phone</div>
+            <div class="adoption-banner-sub">Install the APK to unlock real-time Super Clipboard, Notes sync, File EasyShare, and Remote PC.</div>
+          </div>
+        </div>
+        <div class="adoption-banner-actions">
+          <button class="btn-primary" id="btn-quick-download-apk">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+            Download APK
+          </button>
+          <button class="btn-secondary" id="btn-quick-show-apk-qr">
+            Show QR
+          </button>
+        </div>
+      </div>
+
       <div class="card-grid">
         <div class="glass-card">
           <div class="card-header">
@@ -714,13 +799,56 @@ class NovaApp {
     });
 
     const pairBtn = document.getElementById('btn-pair-device');
-    if (pairBtn) pairBtn.addEventListener('click', () => this.openQrModal());
+    if (pairBtn) pairBtn.addEventListener('click', () => {
+      this.modalTab = 'pair';
+      this.openQrModal();
+    });
 
     const closeBtn = document.getElementById('modal-close-btn');
     if (closeBtn) closeBtn.addEventListener('click', () => this.closeQrModal());
 
     const doneBtn = document.getElementById('modal-done-btn');
     if (doneBtn) doneBtn.addEventListener('click', () => this.closeQrModal());
+
+    // Modal Tab Switching
+    const tabPair = document.getElementById('tab-btn-pair');
+    if (tabPair) tabPair.addEventListener('click', () => {
+      this.modalTab = 'pair';
+      this.render();
+      this.attachEvents();
+    });
+
+    const tabDownload = document.getElementById('tab-btn-download');
+    if (tabDownload) tabDownload.addEventListener('click', () => {
+      this.modalTab = 'download';
+      this.render();
+      this.attachEvents();
+    });
+
+    const switchDownloadLink = document.getElementById('switch-to-download-link');
+    if (switchDownloadLink) switchDownloadLink.addEventListener('click', () => {
+      this.modalTab = 'download';
+      this.render();
+      this.attachEvents();
+    });
+
+    const switchPairBtn = document.getElementById('switch-to-pair-btn');
+    if (switchPairBtn) switchPairBtn.addEventListener('click', () => {
+      this.modalTab = 'pair';
+      this.render();
+      this.attachEvents();
+    });
+
+    const quickDownloadApk = document.getElementById('btn-quick-download-apk');
+    if (quickDownloadApk) quickDownloadApk.addEventListener('click', () => {
+      window.open(this.downloadUrl, '_blank');
+    });
+
+    const quickShowApkQr = document.getElementById('btn-quick-show-apk-qr');
+    if (quickShowApkQr) quickShowApkQr.addEventListener('click', () => {
+      this.modalTab = 'download';
+      this.openQrModal();
+    });
 
     const sendClipBtn = document.getElementById('btn-send-clip');
     if (sendClipBtn) {
