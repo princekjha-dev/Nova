@@ -74,7 +74,7 @@ class NovaService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Nova is Connected")
             .setContentText("Syncing with Prince's Linux PC over LAN")
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(dev.nova.R.drawable.ic_launcher)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .build()
