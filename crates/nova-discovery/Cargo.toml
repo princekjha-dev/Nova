@@ -1,0 +1,24 @@
+[package]
+name = "nova-discovery"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+nova-core = { path = "../nova-core" }
+nova-crypto = { path = "../nova-crypto" }
+mdns-sd = { workspace = true }
+qrcode = { workspace = true }
+rand = { workspace = true }
+ed25519-dalek = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true }
+hex = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3.12"
